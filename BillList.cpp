@@ -3,6 +3,7 @@
 #include <QPaintEvent>
 #include <QPainter>
 #include <QDate>
+#include <QDir>
 #include <QDebug>
 
 BillList::BillList(QWidget *parent) :
@@ -17,8 +18,21 @@ BillList::BillList(QWidget *parent) :
     billPath = QApplication::applicationDirPath() + QString("/bill");
     UpdateInfor();
     //use lambda to represent the
-    connect(ui->EnterButton, &QPushButton::clicked, [](){
-        qDebug() << QApplication::applicationFilePath();
+    connect(ui->EnterButton, &QPushButton::clicked, [this](){
+        QString name = ui->NameLineEdit->text();
+        QString money = ui->MoneyLineEdit->text();
+        //update remain money
+        remainMoney -= money.toInt();
+        QString remainMoneyStr;
+        remainMoneyStr.setNum(remainMoney);
+        WriteFile(remainMoneyStr, WriteStyle::Start);
+        repaint();
+        //write the cost to the file
+        QString content = name + "\t" + money;
+        WriteFile(content, WriteStyle::Append);
+        //clear the lineEdit
+        ui->MoneyLineEdit->clear();
+        ui->NameLineEdit->clear();
     });
 }
 
@@ -32,7 +46,6 @@ void BillList::UpdateInfor()
 {
     auto information = ReadFile(inforPath);
     remainMoney = information[0].toInt();
-    qDebug() << "Read Successfully";
     //change int to string to campare
     QString currentYear, currentMonth, currentDay;
     currentDay.setNum(QDate::currentDate().day());
@@ -64,6 +77,13 @@ void BillList::paintEvent(QPaintEvent *event)
     QString str;
     str.setNum(remainMoney);
     painter.drawText(250, 150, str);
+    QRectF target(0, -30, 400, 160);
+    QRectF source(0, 0, 1000, 400);
+    //put the img folder to the dirpath that our executive file exits, i.e. ApplicationDirPath()
+    QString imgpath = QApplication::applicationDirPath() + "/img/title.png";
+    QImage img(imgpath);
+    //QImage img("C:/Users/ventury/Documents/QT/2017/2017_03/20170321/WhereMyMoney/img/title.png");
+    painter.drawImage(target, img, source);
 }
 
 //read the information from the file

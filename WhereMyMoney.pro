@@ -14,3 +14,6 @@ QT += \
 
 CONFIG += \
     C++11
+
+DISTFILES += \
+    img/title.png
