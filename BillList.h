@@ -15,15 +15,19 @@ public:
     explicit BillList(QWidget *parent = 0);
     ~BillList();
     void paintEvent(QPaintEvent *event) override;
-    enum class ReadContent
-    {REMAIN, YEAR, MONTH, DAT};
     enum class WriteStyle
     {Append, Start};
 private:
-    int ReadFile(QString path, ReadContent content);
-    void WriteFile(QString path, QString str, WriteStyle style);
+    //read RemainMoney, current year, current month, current day from the file
+    QVector<QString> ReadFile(QString path);
+    //write the updated information or billList to file
+    void WriteFile(QString str, WriteStyle style);
+    //update the information from the infor file and use this function when progress begin
+    void UpdateInfor();
 private:
     Ui::BillList *ui;
+    QString inforPath;
+    QString billPath;
     int remainMoney;
 };
 
